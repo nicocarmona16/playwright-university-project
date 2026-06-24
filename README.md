@@ -39,6 +39,12 @@ playwright-university-project/
    npx playwright --version
    ```
 
+4. **Configurar variables de entorno**
+   ```bash
+   # Copiar archivo de ejemplo y modificar valores según necesidad
+   cp .env.example .env
+   ```
+
 ## 🧪 Cómo Ejecutar los Tests
 
 ### Ejecutar todos los tests

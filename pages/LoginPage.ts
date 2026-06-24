@@ -1,10 +1,12 @@
 import { BasePage } from './BasePage';
+import { Page } from '@playwright/test';
 
 /**
  * Page Object Model for Login page
  */
 export class LoginPage extends BasePage {
-  readonly url = 'http://localhost:9002/login';
+  private readonly baseUrl: string;
+  readonly url: string;
   
   // Locators using web-first selectors
   readonly accessAccountHeading = this.page.getByRole('heading', { name: 'Access Your Account' });
@@ -16,8 +18,18 @@ export class LoginPage extends BasePage {
   readonly registerLink = this.page.getByRole('link', { name: 'Create one here' });
   readonly dontHaveProfileText = this.page.getByText('Don\'t have a profile yet?');
   
+  // Error message locators
+  readonly loginFailedMessage = this.page.getByText('Login Failed').first();
+  readonly invalidCredentialsMessage = this.page.getByText('Invalid credentials. Please check your email and password.').first();
+  
   // Login form container
   readonly loginForm = this.page.locator('form');
+
+  constructor(page: Page) {
+    super(page);
+    this.baseUrl = process.env.BASE_URL || 'http://localhost:9002';
+    this.url = `${this.baseUrl}/login`;
+  }
 
   /**
    * Navigate to login page with wait for page load
@@ -129,13 +141,11 @@ export class LoginPage extends BasePage {
    * Wait for error message to appear
    */
   async waitForErrorMessage(): Promise<string | null> {
-    const loginFailedMessage = this.page.getByText('Login Failed');
-    const invalidCredentialsMessage = this.page.getByText('Invalid credentials. Please check your email and password.');
-
+    // Try to find any error message within timeout
     try {
       await Promise.race([
-        loginFailedMessage.waitFor({ state: 'visible', timeout: 30000 }),
-        invalidCredentialsMessage.waitFor({ state: 'visible', timeout: 30000 })
+        this.loginFailedMessage.waitFor({ state: 'visible', timeout: 5000 }),
+        this.invalidCredentialsMessage.waitFor({ state: 'visible', timeout: 5000 })
       ]);
       
       return await this.getErrorMessage();

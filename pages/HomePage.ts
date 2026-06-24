@@ -1,10 +1,18 @@
 import { BasePage } from './BasePage';
+import { Page } from '@playwright/test';
 
 /**
  * Page Object Model for Home page (after successful login)
  */
 export class HomePage extends BasePage {
-  readonly url = 'http://localhost:9002/';
+  private readonly baseUrl: string;
+  readonly url: string;
+
+  constructor(page: Page) {
+    super(page);
+    this.baseUrl = process.env.BASE_URL || 'http://localhost:9002';
+    this.url = `${this.baseUrl}/`;
+  }
   
   // Locators
   readonly availableTraineeTalentHeading = this.page.getByRole('heading', { name: 'Available Trainee Talent' });
