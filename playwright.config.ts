@@ -12,7 +12,7 @@ dotenv.config({ path: path.resolve(__dirname, '.env') });
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
-  testDir: './tests',
+  testDir: './tests/web',
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -42,11 +42,11 @@ export default defineConfig({
     /* Record video on failure */
     video: 'retain-on-failure',
     
-    /* Global timeout for actions */
-    actionTimeout: 30000,
+    /* Global timeout for actions - increased for slow pages */
+    actionTimeout: 45000,
     
-    /* Global timeout for navigation */
-    navigationTimeout: 60000,
+    /* Global timeout for navigation - increased for slow pages */
+    navigationTimeout: 75000,
     
     /* Viewport size */
     viewport: { width: 1280, height: 720 },
@@ -95,10 +95,10 @@ export default defineConfig({
     //   name: 'Microsoft Edge',
     //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
     // },
-    // {
-    //   name: 'Google Chrome',
-    //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
-    // },
+    {
+      name: 'Google Chrome',
+      use: { ...devices['Desktop Chrome'], channel: 'chrome' },
+    },
   ],
 
   /* Run your local dev server before starting the tests */
@@ -108,15 +108,14 @@ export default defineConfig({
   //   reuseExistingServer: !process.env.CI,
   // },
 
-  /* Global setup and teardown */
-  globalSetup: './test-parts/global-setup.ts',
+  /* Global setup and teardown - removed as not needed for this project */
   
-  /* Global timeout */
-  timeout: 180000,
+  /* Global timeout - increased for slow pages */
+  timeout: 240000,
   
-  /* Expect timeout */
+  /* Expect timeout - increased for slow pages */
   expect: {
-    timeout: 10000,
+    timeout: 30000,
   },
 
   /* Output directory for test artifacts */

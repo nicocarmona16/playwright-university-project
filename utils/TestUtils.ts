@@ -19,10 +19,29 @@ export class TestUtils {
   }
 
   /**
+   * Generate random alphanumeric string
+   */
+  static generateRandomAlphaNumeric(length: number = 10): string {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    for (let i = 0; i < length; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+  }
+
+  /**
    * Generate random email
    */
   static generateRandomEmail(): string {
     return `test-${this.generateRandomString()}@example.com`;
+  }
+
+  /**
+   * Generate random email with specific domain
+   */
+  static generateRandomEmailDomain(domain: string = 'globant.com'): string {
+    return `test_user_${Date.now()}@${domain}`;
   }
 
   /**

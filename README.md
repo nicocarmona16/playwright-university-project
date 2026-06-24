@@ -1,174 +1,190 @@
-# Playwright University Project
+# Playwright University Project - Login Tests
 
-A comprehensive Playwright testing setup following industry best practices and architectural patterns.
+Este proyecto contiene pruebas automatizadas de login utilizando Playwright con TypeScript, implementadas siguiendo las mejores prácticas de Page Object Model (POM) y fixtures personalizados.
 
-## 🚀 Project Structure
+## 📁 Estructura del Proyecto
 
 ```
 playwright-university-project/
-├── .env.example                    # Environment variables template
-├── .kilo/                          # Kilo configuration
-├── fixtures/                       # Test fixtures
-│   ├── test-fixtures.ts           # Custom test fixtures with page objects
-│   └── environment-fixture.ts     # Environment-specific fixtures
-├── pages/                          # Page Object Models
-│   ├── BasePage.ts                # Base page class with common functionality
-│   ├── PlaywrightHomePage.ts      # Playwright documentation page object
-│   └── index.ts                   # Export all page objects
-├── test-parts/                     # Global test setup
-│   └── global-setup.ts            # Global test configuration
-├── tests/                          # Test files
-│   ├── example.spec.ts            # Example test from Playwright init
-│   └── web/                       # Web-specific tests
-│       └── web-testing-example.spec.ts
-├── utils/                          # Utility functions
-│   └── TestUtils.ts               # Common test utilities
-├── playwright.config.ts            # Optimized Playwright configuration
-├── package.json                    # Dependencies and scripts
-└── screenshots/                    # Screenshots directory
+├── fixtures/
+│   └── web-fixtures.ts          # Fixtures personalizados para testing web
+├── pages/
+│   ├── BasePage.ts              # Clase base para Page Objects
+│   ├── LoginPage.ts             # POM para la página de login
+│   └── HomePage.ts              # POM para la página principal
+├── tests/
+│   └── web/
+│       └── login.spec.ts        # Tests de login implementados
+├── utils/
+│   └── TestUtils.ts             # Utilidades para testing
+├── playwright.config.ts         # Configuración de Playwright
+├── package.json                 # Dependencias del proyecto
+└── README.md                    # Este archivo
 ```
 
-## 🛠️ Installation
+## 🚀 Instalación y Configuración
 
-1. Install dependencies:
+1. **Instalar dependencias**
+   ```bash
+   npm install
+   ```
+
+2. **Instalar navegadores de Playwright**
+   ```bash
+   npx playwright install
+   ```
+
+3. **Verificar instalación**
+   ```bash
+   npx playwright --version
+   ```
+
+## 🧪 Cómo Ejecutar los Tests
+
+### Ejecutar todos los tests
 ```bash
-npm install
+npx playwright test
 ```
 
-2. Install Playwright browsers:
+### Ejecutar tests exclusivamente en Google Chrome
 ```bash
-npm run install:browsers
+npx playwright test --project="Google Chrome"
 ```
 
-3. Copy environment template:
+### Ejecutar tests con modo debug
 ```bash
-cp .env.example .env
+npx playwright test --debug
 ```
 
-## 📋 Available Scripts
-
-- `npm test` - Run all tests
-- `npm run test:headed` - Run tests in headed mode
-- `npm run test:debug` - Run tests in debug mode
-- `npm run test:ui` - Open Playwright Test UI
-- `npm run test:report` - View test report
-- `npm run test:codegen` - Generate test code
-- `npm run install:browsers` - Install Playwright browsers
-
-## 🌐 Browser Testing
-
-The configuration includes testing across:
-
-- **Desktop**: Chromium, Firefox, WebKit (Safari)
-- **Mobile**: Mobile Chrome, Mobile Safari
-
-## 📊 Reporting
-
-Multiple reporters configured:
-- **HTML** report with visual test results
-- **JSON** export for CI/CD integration
-- **JUnit** XML for test management systems
-- **Line** reporter for console output
-
-## 🔧 Configuration Features
-
-- ✅ Multi-browser testing (Chromium, Firefox, WebKit)
-- ✅ Mobile device testing
-- ✅ Parallel test execution
-- ✅ Automatic retries on CI
-- ✅ Screenshots and video on failure
-- ✅ Trace collection for debugging
-- ✅ Environment variable support
-- ✅ Custom test fixtures
-- ✅ Page Object Model pattern
-- ✅ Global setup and teardown
-- ✅ Optimized timeouts and retry strategies
-
-## 📝 Testing Patterns
-
-### Page Object Model
-- `BasePage.ts` - Common functionality across all pages
-- `PlaywrightHomePage.ts` - Specific page implementation
-- Organized in `pages/` directory for reusability
-
-### Custom Fixtures
-- `test-fixtures.ts` - Inject page objects into tests
-- `environment-fixture.ts` - Environment-specific configurations
-
-### Test Organization
-- Separate test categories in subdirectories
-- Descriptive test names with `.spec.ts` extension
-- Proper Arrange-Act-Assert pattern
-
-## 🚀 Running Tests
-
-### Run all tests
+### Ejecutar tests con interfaz gráfica (UI Mode)
 ```bash
-npm test
+npx playwright test --ui
 ```
 
-### Run specific test file
+### Ejecutar tests en modo headed (con ventana visible)
 ```bash
-npx playwright test tests/web/web-testing-example.spec.ts
+npx playwright test --headed
 ```
 
-### Run tests in specific browser
+### Ejecutar un escenario específico
 ```bash
-npx playwright test --project=chromium
-npx playwright test --project=firefox
-npx playwright test --project=webkit
+npx playwright test --grep "ESCENARIO 1: Successful Login"
+npx playwright test --grep "ESCENARIO 2: Failed Login"
 ```
 
-### Run tests in headed mode
+### Generar reporte HTML
 ```bash
-npm run test:headed
+npx playwright show-report
 ```
 
-### Debug tests
+## 📋 Descripción de los Tests
+
+### Tests Implementados
+
+1. **ESCENARIO 1: Successful Login**
+   - Navega a la página de login
+   - Ingresa credenciales válidas (`testing.skills@globant.com` / `testing123`)
+   - Verifica redirección a página principal (`http://localhost:9002/`)
+   - Confirma visualización de contenido de trainees
+
+2. **ESCENARIO 2: Failed Login (Invalid Credentials)**
+   - Navega a la página de login
+   - Ingresa credenciales inválidas generadas dinámicamente con dominio `@globant.com`
+   - Verifica mensajes de error esperados ("Login Failed" o "Invalid credentials...")
+   - Maneja tanto casos de error mostrados como redirecciones inesperadas
+
+## ⚙️ Configuración Especial para Páginas Lentas
+
+El proyecto está configurado para manejar aplicaciones con alta latencia:
+
+- **Timeout global**: 240 segundos
+- **Timeout de acciones**: 45 segundos
+- **Timeout de navegación**: 75 segundos
+- **Timeout de aserciones**: 30 segundos
+- **Timeout a nivel de archivo**: 90 segundos
+
+## 🏗️ Arquitectura y Mejores Prácticas
+
+### Page Object Model (POM)
+- **BasePage**: Clase base con funcionalidad común
+- **LoginPage**: POM específico para la página de login
+- **HomePage**: POM para la página principal
+
+### Fixtures Personalizados
+- **web-fixtures.ts**: Configura page objects y contextos específicos
+- **authenticatedTest**: Extiende con estado autenticado pre-configurado
+- **slowPageTest**: Configurado con timeouts extendidos
+
+### Utilidades
+- **TestUtils**: Clase con métodos auxiliares para testing
+- Generación de datos aleatorios
+- Logs estructurados
+- Utilidades de fecha y strings
+
+## 🌐 URLs y Configuración
+
+- **URL de Login**: `http://localhost:9002/login`
+- **URL Principal**: `http://localhost:9002/`
+- **Navegador Requerido**: Google Chrome
+- **Credenciales de Test**:
+  - Email: `testing.skills@globant.com`
+  - Password: `testing123`
+
+## 📊 Reportes y Artifacts
+
+Los tests generan los siguientes artifacts:
+
+- **Reporte HTML**: `playwright-report/index.html`
+- **Screenshots**: `test-results/screenshots/`
+- **Videos**: `test-results/videos/`
+- **Trace files**: `test-results/trace/`
+- **JSON results**: `test-results/results.json`
+
+## 🛠️ Comandos Útiles
+
+### Lint y Type Check
 ```bash
-npm run test:debug
+npm run lint
+npm run type-check
 ```
 
-## 📈 CI/CD Integration
+### Limpieza de artifacts
+```bash
+npx playwright test --clean
+```
 
-The configuration is optimized for CI/CD environments:
-- Automatic detection of CI environment
-- Reduced parallel execution on CI
-- HTML reports preserved for upload
-- No automatic report opening in CI
+### Actualizar snapshots
+```bash
+npx playwright test --update-snapshots
+```
 
-## 🔍 Debugging
+## 🐛 Debug y Troubleshooting
 
-- Automatic screenshots on failure
-- Video recording of failed tests
-- Trace collection for detailed analysis
-- Visual test results in HTML report
+### Modo Debug con puntos de interrupción
+```bash
+npx playwright test --debug
+```
 
-## 📚 Best Practices Implemented
+### Ejecución paso a paso
+```bash
+npx playwright test --debugger
+```
 
-1. **Page Object Pattern**: Clean separation of page logic
-2. **Custom Fixtures**: Reusable test setup
-3. **Environment Configuration**: Flexible environment support
-4. **Parallel Execution**: Optimized test performance
-5. **Cross-browser Testing**: Comprehensive browser coverage
-6. **Mobile Testing**: Responsive design validation
-7. **Error Handling**: Robust failure recovery
-8. **Reporting**: Multiple output formats for different stakeholders
+### Logs verbosos
+```bash
+DEBUG=pw:api npx playwright test
+```
 
-## 🎯 Next Steps
+## 🚨 Consideraciones Especiales
 
-1. Add more page objects for your application
-2. Create test suites for different feature areas
-3. Set up CI/CD pipeline integration
-4. Add API testing alongside UI tests
-5. Implement visual regression testing
-6. Add performance testing capabilities
+1. **Latencia Alta**: Los tests están optimizados para páginas con picos de latencia
+2. **Sin Esperas Fijas**: Se utilizan aserciones con auto-reintento (web-first assertions)
+3. **Estado Limpio**: Cada test limpia cookies y storage antes de ejecutarse
+4. **Selectores Resilientes**: Uso de `getByRole`, `getByText` y seletores web-first
 
-## 🤝 Contributing
+## 📝 Notas Adicionales
 
-Follow the established patterns:
-- Use TypeScript for type safety
-- Implement Page Object Models
-- Write descriptive test names
-- Include proper assertions
-- Add documentation for complex tests
+- El proyecto está configurado para ejecutarse exclusivamente en Google Chrome
+- Los timeouts extendidos aseguran robustez en aplicaciones lentas
+- La arquitectura POM facilita el mantenimiento y escalabilidad
+- Los fixtures personalizados proporcionan contexto compartido entre tests
