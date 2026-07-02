@@ -1,6 +1,7 @@
 import { test as base, expect } from '@playwright/test';
 import { LoginPage } from '../pages/LoginPage';
 import { HomePage } from '../pages/HomePage';
+import { TraineeSearchPage } from '../pages/TraineeSearchPage';
 
 /**
  * Custom test fixtures with page objects for web testing
@@ -8,6 +9,7 @@ import { HomePage } from '../pages/HomePage';
 export const test = base.extend<{
   loginPage: LoginPage;
   homePage: HomePage;
+  traineeSearchPage: TraineeSearchPage;
 }>({
   loginPage: async ({ page }, use) => {
     const loginPage = new LoginPage(page);
@@ -16,6 +18,10 @@ export const test = base.extend<{
   homePage: async ({ page }, use) => {
     const homePage = new HomePage(page);
     await use(homePage);
+  },
+  traineeSearchPage: async ({ page }, use) => {
+    const traineeSearchPage = new TraineeSearchPage(page);
+    await use(traineeSearchPage);
   },
 });
 
