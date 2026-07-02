@@ -1,5 +1,6 @@
 import { BasePage } from './BasePage';
 import { Page } from '@playwright/test';
+import { TestUtils } from '../utils/TestUtils';
 
 /**
  * Page Object Model for Trainee Search functionality on Home page
@@ -29,8 +30,8 @@ export class TraineeSearchPage extends BasePage {
   
   // English level filter locators
   readonly englishLevelButton = this.page.locator('button:has-text("English Level"), [data-testid*="english"]');
-  readonly englishLevelDropdown = this.page.locator('[role="listbox"], [data-placeholder*="English"]');
-  readonly englishLevelOptions = this.page.locator('[role="option"], [data-value], [data-state]');
+  readonly englishLevelDropdown = this.page.locator('div[role="menu"][data-state="open"]');
+  readonly englishLevelOptions = this.page.locator('div[role="menuitem"][data-orientation="vertical"]');
   
   // Skills filter locators
   readonly skillsButton = this.page.locator('button:has-text("Skills"), [data-testid*="skills"]');
@@ -227,7 +228,15 @@ export class TraineeSearchPage extends BasePage {
    * Click on location dropdown to open it
    */
   async openLocationDropdown(): Promise<void> {
-    await this.locationButton.click();
+    try {
+      await this.locationButton.click();
+      await this.page.waitForTimeout(500); // Allow dropdown time to open
+    } catch {
+      TestUtils.log('Error clicking location button, trying alternative approach');
+      // Try alternative selectors
+      await this.page.locator('button:has-text("L")').first().click();
+      await this.page.waitForTimeout(500);
+    }
   }
 
   /**
@@ -237,12 +246,34 @@ export class TraineeSearchPage extends BasePage {
     // Open location dropdown first
     await this.openLocationDropdown();
     
-    // Wait for dropdown to be visible
-    await this.locationDropdown.waitFor({ state: 'visible', timeout: 5000 });
+    // Wait for dropdown to be visible - more flexible approach
+    await this.page.waitForTimeout(1000); // Give dropdown time to open
     
-    // Click on the specific location option - using exact selector
+    // Check if any dropdown is open (could have different IDs)
+    try {
+      const dropdownVisible = await this.locationDropdown.isVisible({ timeout: 3000 });
+      if (!dropdownVisible) {
+        TestUtils.log('Dropdown not visible, trying alternative approach');
+        // Try to click location button again
+        await this.locationButton.click();
+        await this.page.waitForTimeout(500);
+      }
+    } catch {
+      // Continue even if dropdown check fails
+      TestUtils.log('Dropdown check failed, continuing with location selection');
+    }
+    
+    // Click on the specific location option - more robust approach
     const locationOption = this.page.locator(`div[role="menuitem"][data-orientation="vertical"]:has-text("${location}")`).first();
-    await locationOption.click();
+    
+    try {
+      await locationOption.waitFor({ state: 'visible', timeout: 3000 });
+      await locationOption.click();
+    } catch {
+      // Alternative approach: try clicking the location directly
+      TestUtils.log('Using alternative approach for location selection');
+      await this.page.locator(`text="${location}"`).first().click();
+    }
   }
 
   /**
@@ -256,15 +287,34 @@ export class TraineeSearchPage extends BasePage {
    * Filter by location (combines selection and application)
    */
   async filterByLocation(location: string): Promise<void> {
-    await this.selectLocation(location);
-    await this.applyFilters();
+    try {
+      await this.selectLocation(location);
+      await this.page.waitForTimeout(500); // Allow selection to register
+      await this.applyFilters();
+    } catch (error) {
+      TestUtils.log(`Error in location filtering: ${error}`);
+      // As last resort, try to use keyboard or alternative approach
+      await this.locationButton.click();
+      await this.page.waitForTimeout(500);
+      await this.page.locator(`text="${location}"`).first().click();
+      await this.page.waitForTimeout(500);
+      await this.applyFilters();
+    }
   }
 
   /**
    * Click on English level dropdown to open it
    */
   async openEnglishLevelDropdown(): Promise<void> {
-    await this.englishLevelButton.click();
+    try {
+      await this.englishLevelButton.click();
+      await this.page.waitForTimeout(500); // Allow dropdown time to open
+    } catch {
+      TestUtils.log('Error clicking English level button, trying alternative approach');
+      // Try alternative selectors
+      await this.page.locator('button:has-text("English")').first().click();
+      await this.page.waitForTimeout(500);
+    }
   }
 
   /**
@@ -274,20 +324,53 @@ export class TraineeSearchPage extends BasePage {
     // Open English level dropdown first
     await this.openEnglishLevelDropdown();
     
-    // Wait for dropdown to be visible
-    await this.englishLevelDropdown.waitFor({ state: 'visible', timeout: 5000 });
+    // Wait for dropdown to be visible - more flexible approach
+    await this.page.waitForTimeout(1000); // Give dropdown time to open
     
-    // Click on the specific English level option
-    const levelOption = this.page.locator(`[data-value*="${level}"], [data-state*="${level}"], :text("${level}")`).first();
-    await levelOption.click();
+    // Check if any dropdown is open (could have different IDs)
+    try {
+      const dropdownVisible = await this.englishLevelDropdown.isVisible({ timeout: 3000 });
+      if (!dropdownVisible) {
+        TestUtils.log('English dropdown not visible, trying alternative approach');
+        // Try to click English level button again
+        await this.englishLevelButton.click();
+        await this.page.waitForTimeout(500);
+      }
+    } catch {
+      // Continue even if dropdown check fails
+      TestUtils.log('English dropdown check failed, continuing with level selection');
+    }
+    
+    // Click on the specific English level option - more robust approach
+    const levelOption = this.page.locator(`div[role="menuitem"][data-orientation="vertical"]:has-text("${level}")`).first();
+    
+    try {
+      await levelOption.waitFor({ state: 'visible', timeout: 3000 });
+      await levelOption.click();
+    } catch {
+      // Alternative approach: try clicking the level directly
+      TestUtils.log('Using alternative approach for English level selection');
+      await this.page.locator(`text="${level}"`).first().click();
+    }
   }
 
   /**
    * Filter by English level (combines selection and application)
    */
   async filterByEnglishLevel(level: string): Promise<void> {
-    await this.selectEnglishLevel(level);
-    await this.applyFilters();
+    try {
+      await this.selectEnglishLevel(level);
+      await this.page.waitForTimeout(500); // Allow selection to register
+      await this.applyFilters();
+    } catch (error) {
+      TestUtils.log(`Error in English level filtering: ${error}`);
+      // As last resort, try to use keyboard or alternative approach
+      await this.englishLevelButton.click();
+      await this.page.waitForTimeout(500);
+      await this.page.locator(`text="${level}"`).first().click();
+      await this.page.waitForTimeout(500);
+      await this.applyFilters();
+    }
   }
 
   /**
