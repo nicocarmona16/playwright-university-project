@@ -21,6 +21,21 @@ export class TraineeSearchPage extends BasePage {
   readonly viewProfileButtons = this.page.getByRole('button', { name: 'View Profile' });
   readonly noResultsMessage = this.page.getByText(/no results|not found|0 trainees|No|Found|empty/i);
   readonly traineeNames = this.page.locator('h3, h2, [class*="name"], [data-testid*="name"]');
+  
+  // Location filter locators
+  readonly locationButton = this.page.locator('button:has-text("Location"), [data-testid*="location"]');
+  readonly locationDropdown = this.page.locator('div[role="menu"][data-state="open"]');
+  readonly locationOptions = this.page.locator('div[role="menuitem"][data-orientation="vertical"]');
+  
+  // English level filter locators
+  readonly englishLevelButton = this.page.locator('button:has-text("English Level"), [data-testid*="english"]');
+  readonly englishLevelDropdown = this.page.locator('[role="listbox"], [data-placeholder*="English"]');
+  readonly englishLevelOptions = this.page.locator('[role="option"], [data-value], [data-state]');
+  
+  // Skills filter locators
+  readonly skillsButton = this.page.locator('button:has-text("Skills"), [data-testid*="skills"]');
+  readonly skillsDropdown = this.page.locator('[data-state*="open"], [class*="popover"]');
+  readonly skillsOptions = this.page.locator('[role="checkbox"], input[type="checkbox"], [data-testid*="skill"]');
 
   /**
    * Navigate to home page where search functionality is available
@@ -206,5 +221,123 @@ export class TraineeSearchPage extends BasePage {
    */
   async waitForTimeout(ms: number): Promise<void> {
     await this.page.waitForTimeout(ms);
+  }
+
+  /**
+   * Click on location dropdown to open it
+   */
+  async openLocationDropdown(): Promise<void> {
+    await this.locationButton.click();
+  }
+
+  /**
+   * Select a location from the dropdown
+   */
+  async selectLocation(location: string): Promise<void> {
+    // Open location dropdown first
+    await this.openLocationDropdown();
+    
+    // Wait for dropdown to be visible
+    await this.locationDropdown.waitFor({ state: 'visible', timeout: 5000 });
+    
+    // Click on the specific location option - using exact selector
+    const locationOption = this.page.locator(`div[role="menuitem"][data-orientation="vertical"]:has-text("${location}")`).first();
+    await locationOption.click();
+  }
+
+  /**
+   * Apply filters by clicking search button
+   */
+  async applyFilters(): Promise<void> {
+    await this.searchButton.click();
+  }
+
+  /**
+   * Filter by location (combines selection and application)
+   */
+  async filterByLocation(location: string): Promise<void> {
+    await this.selectLocation(location);
+    await this.applyFilters();
+  }
+
+  /**
+   * Click on English level dropdown to open it
+   */
+  async openEnglishLevelDropdown(): Promise<void> {
+    await this.englishLevelButton.click();
+  }
+
+  /**
+   * Select an English level from the dropdown
+   */
+  async selectEnglishLevel(level: string): Promise<void> {
+    // Open English level dropdown first
+    await this.openEnglishLevelDropdown();
+    
+    // Wait for dropdown to be visible
+    await this.englishLevelDropdown.waitFor({ state: 'visible', timeout: 5000 });
+    
+    // Click on the specific English level option
+    const levelOption = this.page.locator(`[data-value*="${level}"], [data-state*="${level}"], :text("${level}")`).first();
+    await levelOption.click();
+  }
+
+  /**
+   * Filter by English level (combines selection and application)
+   */
+  async filterByEnglishLevel(level: string): Promise<void> {
+    await this.selectEnglishLevel(level);
+    await this.applyFilters();
+  }
+
+  /**
+   * Open skills dropdown
+   */
+  async openSkillsDropdown(): Promise<void> {
+    await this.skillsButton.click();
+  }
+
+  /**
+   * Select a skill by checking its checkbox
+   */
+  async selectSkill(skill: string): Promise<void> {
+    // Open skills dropdown first
+    await this.openSkillsDropdown();
+    
+    // Wait for skills dropdown to be visible
+    await this.skillsDropdown.waitFor({ state: 'visible', timeout: 5000 });
+    
+    // Click on the specific skill checkbox
+    const skillOption = this.page.locator(`[data-value*="${skill}"], :text-is("${skill}"), [data-testid*="${skill}"]`).first();
+    await skillOption.check();
+  }
+
+  /**
+   * Filter by single skill (combines selection and application)
+   */
+  async filterBySkill(skill: string): Promise<void> {
+    await this.selectSkill(skill);
+    await this.applyFilters();
+  }
+
+  /**
+   * Clear all filters by clicking their respective buttons/areas
+   */
+  async clearFilters(): Promise<void> {
+    // Clear search input
+    await this.clearSearch();
+    
+    // If location is selected, click location button to close dropdown
+    try {
+      if (await this.locationButton.isVisible()) {
+        await this.locationButton.click();
+        await this.page.waitForTimeout(500);
+      }
+    } catch {
+      // Location dropdown might not be open, continue
+    }
+    
+    // Apply filters to clear them
+    await this.applyFilters();
   }
 }
