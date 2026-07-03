@@ -190,9 +190,6 @@ export class TraineeSearchPage extends BasePage {
    * Wait for search results to load and stabilize
    */
   async waitForSearchResults(): Promise<void> {
-    // Wait for search to complete
-    await this.page.waitForTimeout(1000);
-    
     // Wait for either trainees or no results message
     await this.waitForTraineesToLoad();
   }
@@ -229,21 +226,15 @@ export class TraineeSearchPage extends BasePage {
    */
   async openLocationDropdown(): Promise<void> {
     await this.locationButton.click();
-    await this.page.waitForTimeout(500); // Allow dropdown time to open
   }
 
   /**
    * Select a location from the dropdown
    */
   async selectLocation(location: string): Promise<void> {
-    // Open location dropdown first
     await this.openLocationDropdown();
-    
-    // Wait for dropdown to be visible
-    await this.page.waitForTimeout(1000); // Give dropdown time to open
-    
-    // Click on the specific location option
     const locationOption = this.page.locator(`div[role="menuitem"][data-orientation="vertical"]:has-text("${location}")`).first();
+    await locationOption.waitFor({ state: 'visible', timeout: 5000 });
     await locationOption.click();
   }
 
@@ -260,7 +251,6 @@ export class TraineeSearchPage extends BasePage {
   async filterByLocation(location: string): Promise<void> {
     try {
       await this.selectLocation(location);
-      await this.page.waitForTimeout(500); // Allow selection to register
       await this.applyFilters();
     } catch (error) {
       TestUtils.log(`Error in location filtering: ${error}`);
@@ -274,7 +264,6 @@ export class TraineeSearchPage extends BasePage {
    */
   async openEnglishLevelDropdown(): Promise<void> {
     await this.englishLevelButton.click();
-    await this.page.waitForTimeout(500); // Allow dropdown time to open
   }
 
   /**
@@ -284,11 +273,9 @@ export class TraineeSearchPage extends BasePage {
     // Open English level dropdown first
     await this.openEnglishLevelDropdown();
     
-    // Wait for dropdown to be visible
-    await this.page.waitForTimeout(1000); // Give dropdown time to open
-    
-    // Click on the specific English level option
+    // Wait for level option to be visible
     const levelOption = this.page.locator(`div[role="menuitem"][data-orientation="vertical"]:has-text("${level}")`).first();
+    await levelOption.waitFor({ state: 'visible', timeout: 5000 });
     await levelOption.click();
   }
 
@@ -298,7 +285,6 @@ export class TraineeSearchPage extends BasePage {
   async filterByEnglishLevel(level: string): Promise<void> {
     try {
       await this.selectEnglishLevel(level);
-      await this.page.waitForTimeout(500); // Allow selection to register
       await this.applyFilters();
     } catch (error) {
       TestUtils.log(`Error in English level filtering: ${error}`);
@@ -313,12 +299,12 @@ export class TraineeSearchPage extends BasePage {
   async openSkillsDropdown(): Promise<void> {
     try {
       await this.skillsButton.click();
-      await this.page.waitForTimeout(500); // Allow dropdown time to open
+      await this.skillsDropdown.waitFor({ state: 'visible', timeout: 3000 });
     } catch {
       TestUtils.log('Error clicking Skills button, trying alternative approach');
       // Try alternative selectors
       await this.page.locator('button:has-text("S")').first().click();
-      await this.page.waitForTimeout(500);
+      await this.skillsDropdown.waitFor({ state: 'visible', timeout: 3000 });
     }
   }
 
@@ -329,16 +315,13 @@ export class TraineeSearchPage extends BasePage {
     // Open skills dropdown first
     await this.openSkillsDropdown();
     
-    // Wait for skills dropdown to be visible - more flexible approach
-    await this.page.waitForTimeout(1000); // Give dropdown time to open
-    
     // Check if dropdown is open
     try {
       const dropdownVisible = await this.skillsDropdown.isVisible({ timeout: 3000 });
       if (!dropdownVisible) {
         TestUtils.log('Skills dropdown not visible, trying alternative approach');
         await this.skillsButton.click();
-        await this.page.waitForTimeout(500);
+        await this.skillsDropdown.waitFor({ state: 'visible', timeout: 3000 });
       }
     } catch {
       // Continue even if dropdown check fails
@@ -351,7 +334,6 @@ export class TraineeSearchPage extends BasePage {
     try {
       await skillOption.waitFor({ state: 'visible', timeout: 3000 });
       await skillOption.click(); // Click to check/uncheck
-      await this.page.waitForTimeout(500); // Allow checkbox state to register
     } catch {
       TestUtils.log(`Using alternative approach for skill selection: ${skill}`);
       await this.page.locator(`text="${skill}"`).first().click();
@@ -372,11 +354,9 @@ export class TraineeSearchPage extends BasePage {
         const skillOption = this.page.locator(`div[role="menuitemcheckbox"]:has-text("${skill}")`).first();
         await skillOption.waitFor({ state: 'visible', timeout: 3000 });
         await skillOption.click();
-        await this.page.waitForTimeout(300); // Allow checkbox state to register
       } catch {
         TestUtils.log(`Alternative selection for skill: ${skill}`);
         await this.page.locator(`text="${skill}"`).first().click();
-        await this.page.waitForTimeout(300);
       }
     }
   }
@@ -387,16 +367,14 @@ export class TraineeSearchPage extends BasePage {
   async filterBySkill(skill: string): Promise<void> {
     try {
       await this.selectSkill(skill);
-      await this.page.waitForTimeout(500); // Allow selection to register
       await this.closeSkillsDropdown(); // Close dropdown before search
       await this.applyFilters();
     } catch (error) {
       TestUtils.log(`Error in skill filtering: ${error}`);
       // As last resort, try alternative approach
       await this.skillsButton.click();
-      await this.page.waitForTimeout(500);
+      await this.skillsDropdown.waitFor({ state: 'visible', timeout: 3000 });
       await this.page.locator(`text="${skill}"`).first().click();
-      await this.page.waitForTimeout(500);
       await this.closeSkillsDropdown();
       await this.applyFilters();
     }
@@ -408,17 +386,15 @@ export class TraineeSearchPage extends BasePage {
   async filterByMultipleSkills(skills: string[]): Promise<void> {
     try {
       await this.selectMultipleSkills(skills);
-      await this.page.waitForTimeout(500); // Allow selections to register
       await this.closeSkillsDropdown(); // Close dropdown before search
       await this.applyFilters();
     } catch (error) {
       TestUtils.log(`Error in multiple skills filtering: ${error}`);
       // Alternative approach - try each skill individually
       await this.skillsButton.click();
-      await this.page.waitForTimeout(500);
+      await this.skillsDropdown.waitFor({ state: 'visible', timeout: 3000 });
       for (const skill of skills) {
         await this.page.locator(`text="${skill}"`).first().click();
-        await this.page.waitForTimeout(300);
       }
       await this.closeSkillsDropdown();
       await this.applyFilters();
@@ -432,7 +408,6 @@ export class TraineeSearchPage extends BasePage {
     try {
       // Press Escape to close dropdown if it's open
       await this.page.keyboard.press('Escape');
-      await this.page.waitForTimeout(500);
     } catch {
       TestUtils.log('Could not close skills dropdown, continuing...');
     }
@@ -449,7 +424,6 @@ export class TraineeSearchPage extends BasePage {
     try {
       if (await this.locationButton.isVisible()) {
         await this.locationButton.click();
-        await this.page.waitForTimeout(500);
       }
     } catch {
       // Location dropdown might not be open, continue
