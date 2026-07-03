@@ -35,8 +35,8 @@ export class TraineeSearchPage extends BasePage {
   
   // Skills filter locators
   readonly skillsButton = this.page.locator('button:has-text("Skills"), [data-testid*="skills"]');
-  readonly skillsDropdown = this.page.locator('[data-state*="open"], [class*="popover"]');
-  readonly skillsOptions = this.page.locator('[role="checkbox"], input[type="checkbox"], [data-testid*="skill"]');
+  readonly skillsDropdown = this.page.locator('div[role="menu"][data-state="open"]');
+  readonly skillsOptions = this.page.locator('div[role="menuitemcheckbox"]');
 
   /**
    * Navigate to home page where search functionality is available
@@ -228,15 +228,8 @@ export class TraineeSearchPage extends BasePage {
    * Click on location dropdown to open it
    */
   async openLocationDropdown(): Promise<void> {
-    try {
-      await this.locationButton.click();
-      await this.page.waitForTimeout(500); // Allow dropdown time to open
-    } catch {
-      TestUtils.log('Error clicking location button, trying alternative approach');
-      // Try alternative selectors
-      await this.page.locator('button:has-text("L")').first().click();
-      await this.page.waitForTimeout(500);
-    }
+    await this.locationButton.click();
+    await this.page.waitForTimeout(500); // Allow dropdown time to open
   }
 
   /**
@@ -246,33 +239,16 @@ export class TraineeSearchPage extends BasePage {
     // Open location dropdown first
     await this.openLocationDropdown();
     
-    // Wait for dropdown to be visible - more flexible approach
-    await this.page.waitForTimeout(1000); // Give dropdown time to open
+    // Wait for dropdown to be visible - increased timeout
+    await this.page.waitForTimeout(2000); // Give dropdown more time to open
     
-    // Check if any dropdown is open (could have different IDs)
-    try {
-      const dropdownVisible = await this.locationDropdown.isVisible({ timeout: 3000 });
-      if (!dropdownVisible) {
-        TestUtils.log('Dropdown not visible, trying alternative approach');
-        // Try to click location button again
-        await this.locationButton.click();
-        await this.page.waitForTimeout(500);
-      }
-    } catch {
-      // Continue even if dropdown check fails
-      TestUtils.log('Dropdown check failed, continuing with location selection');
-    }
-    
-    // Click on the specific location option - more robust approach
+    // Click on the specific location option - with timeout
     const locationOption = this.page.locator(`div[role="menuitem"][data-orientation="vertical"]:has-text("${location}")`).first();
-    
     try {
-      await locationOption.waitFor({ state: 'visible', timeout: 3000 });
-      await locationOption.click();
+      await locationOption.click({ timeout: 10000 });
     } catch {
-      // Alternative approach: try clicking the location directly
-      TestUtils.log('Using alternative approach for location selection');
-      await this.page.locator(`text="${location}"`).first().click();
+      // Try alternative selector
+      await this.page.locator(`div[role="menuitem"]:has-text("${location}")`).first().click({ timeout: 10000 });
     }
   }
 
@@ -293,12 +269,8 @@ export class TraineeSearchPage extends BasePage {
       await this.applyFilters();
     } catch (error) {
       TestUtils.log(`Error in location filtering: ${error}`);
-      // As last resort, try to use keyboard or alternative approach
-      await this.locationButton.click();
-      await this.page.waitForTimeout(500);
-      await this.page.locator(`text="${location}"`).first().click();
-      await this.page.waitForTimeout(500);
-      await this.applyFilters();
+      // Simpler approach: just skip this test run if filtering fails
+      throw new Error(`Location filtering failed: ${error}`);
     }
   }
 
@@ -306,15 +278,8 @@ export class TraineeSearchPage extends BasePage {
    * Click on English level dropdown to open it
    */
   async openEnglishLevelDropdown(): Promise<void> {
-    try {
-      await this.englishLevelButton.click();
-      await this.page.waitForTimeout(500); // Allow dropdown time to open
-    } catch {
-      TestUtils.log('Error clicking English level button, trying alternative approach');
-      // Try alternative selectors
-      await this.page.locator('button:has-text("English")').first().click();
-      await this.page.waitForTimeout(500);
-    }
+    await this.englishLevelButton.click();
+    await this.page.waitForTimeout(500); // Allow dropdown time to open
   }
 
   /**
@@ -324,33 +289,16 @@ export class TraineeSearchPage extends BasePage {
     // Open English level dropdown first
     await this.openEnglishLevelDropdown();
     
-    // Wait for dropdown to be visible - more flexible approach
-    await this.page.waitForTimeout(1000); // Give dropdown time to open
+    // Wait for dropdown to be visible - increased timeout
+    await this.page.waitForTimeout(2000); // Give dropdown more time to open
     
-    // Check if any dropdown is open (could have different IDs)
-    try {
-      const dropdownVisible = await this.englishLevelDropdown.isVisible({ timeout: 3000 });
-      if (!dropdownVisible) {
-        TestUtils.log('English dropdown not visible, trying alternative approach');
-        // Try to click English level button again
-        await this.englishLevelButton.click();
-        await this.page.waitForTimeout(500);
-      }
-    } catch {
-      // Continue even if dropdown check fails
-      TestUtils.log('English dropdown check failed, continuing with level selection');
-    }
-    
-    // Click on the specific English level option - more robust approach
+    // Click on the specific English level option - with timeout
     const levelOption = this.page.locator(`div[role="menuitem"][data-orientation="vertical"]:has-text("${level}")`).first();
-    
     try {
-      await levelOption.waitFor({ state: 'visible', timeout: 3000 });
-      await levelOption.click();
+      await levelOption.click({ timeout: 10000 });
     } catch {
-      // Alternative approach: try clicking the level directly
-      TestUtils.log('Using alternative approach for English level selection');
-      await this.page.locator(`text="${level}"`).first().click();
+      // Try alternative selector
+      await this.page.locator(`div[role="menuitem"]:has-text("${level}")`).first().click({ timeout: 10000 });
     }
   }
 
@@ -364,12 +312,8 @@ export class TraineeSearchPage extends BasePage {
       await this.applyFilters();
     } catch (error) {
       TestUtils.log(`Error in English level filtering: ${error}`);
-      // As last resort, try to use keyboard or alternative approach
-      await this.englishLevelButton.click();
-      await this.page.waitForTimeout(500);
-      await this.page.locator(`text="${level}"`).first().click();
-      await this.page.waitForTimeout(500);
-      await this.applyFilters();
+      // Simpler approach: just skip this test run if filtering fails
+      throw new Error(`English level filtering failed: ${error}`);
     }
   }
 
@@ -377,7 +321,15 @@ export class TraineeSearchPage extends BasePage {
    * Open skills dropdown
    */
   async openSkillsDropdown(): Promise<void> {
-    await this.skillsButton.click();
+    try {
+      await this.skillsButton.click();
+      await this.page.waitForTimeout(500); // Allow dropdown time to open
+    } catch {
+      TestUtils.log('Error clicking Skills button, trying alternative approach');
+      // Try alternative selectors
+      await this.page.locator('button:has-text("S")').first().click();
+      await this.page.waitForTimeout(500);
+    }
   }
 
   /**
@@ -387,20 +339,113 @@ export class TraineeSearchPage extends BasePage {
     // Open skills dropdown first
     await this.openSkillsDropdown();
     
-    // Wait for skills dropdown to be visible
-    await this.skillsDropdown.waitFor({ state: 'visible', timeout: 5000 });
+    // Wait for skills dropdown to be visible - more flexible approach
+    await this.page.waitForTimeout(1000); // Give dropdown time to open
     
-    // Click on the specific skill checkbox
-    const skillOption = this.page.locator(`[data-value*="${skill}"], :text-is("${skill}"), [data-testid*="${skill}"]`).first();
-    await skillOption.check();
+    // Check if dropdown is open
+    try {
+      const dropdownVisible = await this.skillsDropdown.isVisible({ timeout: 3000 });
+      if (!dropdownVisible) {
+        TestUtils.log('Skills dropdown not visible, trying alternative approach');
+        await this.skillsButton.click();
+        await this.page.waitForTimeout(500);
+      }
+    } catch {
+      // Continue even if dropdown check fails
+      TestUtils.log('Skills dropdown check failed, continuing with skill selection');
+    }
+    
+    // Click on the specific skill checkbox - using exact selector from MCP
+    const skillOption = this.page.locator(`div[role="menuitemcheckbox"]:has-text("${skill}")`).first();
+    
+    try {
+      await skillOption.waitFor({ state: 'visible', timeout: 3000 });
+      await skillOption.click(); // Click to check/uncheck
+      await this.page.waitForTimeout(500); // Allow checkbox state to register
+    } catch {
+      TestUtils.log(`Using alternative approach for skill selection: ${skill}`);
+      await this.page.locator(`text="${skill}"`).first().click();
+    }
+  }
+
+  /**
+   * Select multiple skills (for AND logic filtering)
+   */
+  async selectMultipleSkills(skills: string[]): Promise<void> {
+    // Open skills dropdown first
+    await this.openSkillsDropdown();
+    
+    // Select each skill
+    for (const skill of skills) {
+      TestUtils.log(`Selecting skill: ${skill}`);
+      try {
+        const skillOption = this.page.locator(`div[role="menuitemcheckbox"]:has-text("${skill}")`).first();
+        await skillOption.waitFor({ state: 'visible', timeout: 3000 });
+        await skillOption.click();
+        await this.page.waitForTimeout(300); // Allow checkbox state to register
+      } catch {
+        TestUtils.log(`Alternative selection for skill: ${skill}`);
+        await this.page.locator(`text="${skill}"`).first().click();
+        await this.page.waitForTimeout(300);
+      }
+    }
   }
 
   /**
    * Filter by single skill (combines selection and application)
    */
   async filterBySkill(skill: string): Promise<void> {
-    await this.selectSkill(skill);
-    await this.applyFilters();
+    try {
+      await this.selectSkill(skill);
+      await this.page.waitForTimeout(500); // Allow selection to register
+      await this.closeSkillsDropdown(); // Close dropdown before search
+      await this.applyFilters();
+    } catch (error) {
+      TestUtils.log(`Error in skill filtering: ${error}`);
+      // As last resort, try alternative approach
+      await this.skillsButton.click();
+      await this.page.waitForTimeout(500);
+      await this.page.locator(`text="${skill}"`).first().click();
+      await this.page.waitForTimeout(500);
+      await this.closeSkillsDropdown();
+      await this.applyFilters();
+    }
+  }
+
+  /**
+   * Filter by multiple skills (AND logic - combines selection and application)
+   */
+  async filterByMultipleSkills(skills: string[]): Promise<void> {
+    try {
+      await this.selectMultipleSkills(skills);
+      await this.page.waitForTimeout(500); // Allow selections to register
+      await this.closeSkillsDropdown(); // Close dropdown before search
+      await this.applyFilters();
+    } catch (error) {
+      TestUtils.log(`Error in multiple skills filtering: ${error}`);
+      // Alternative approach - try each skill individually
+      await this.skillsButton.click();
+      await this.page.waitForTimeout(500);
+      for (const skill of skills) {
+        await this.page.locator(`text="${skill}"`).first().click();
+        await this.page.waitForTimeout(300);
+      }
+      await this.closeSkillsDropdown();
+      await this.applyFilters();
+    }
+  }
+
+  /**
+   * Close skills dropdown (important before applying filters)
+   */
+  async closeSkillsDropdown(): Promise<void> {
+    try {
+      // Press Escape to close dropdown if it's open
+      await this.page.keyboard.press('Escape');
+      await this.page.waitForTimeout(500);
+    } catch {
+      TestUtils.log('Could not close skills dropdown, continuing...');
+    }
   }
 
   /**
