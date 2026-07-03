@@ -191,7 +191,7 @@ export class TraineeSearchPage extends BasePage {
    */
   async waitForSearchResults(): Promise<void> {
     // Wait for search to complete
-    await this.page.waitForTimeout(2000);
+    await this.page.waitForTimeout(1000);
     
     // Wait for either trainees or no results message
     await this.waitForTraineesToLoad();
@@ -239,17 +239,12 @@ export class TraineeSearchPage extends BasePage {
     // Open location dropdown first
     await this.openLocationDropdown();
     
-    // Wait for dropdown to be visible - increased timeout
-    await this.page.waitForTimeout(2000); // Give dropdown more time to open
+    // Wait for dropdown to be visible
+    await this.page.waitForTimeout(1000); // Give dropdown time to open
     
-    // Click on the specific location option - with timeout
+    // Click on the specific location option
     const locationOption = this.page.locator(`div[role="menuitem"][data-orientation="vertical"]:has-text("${location}")`).first();
-    try {
-      await locationOption.click({ timeout: 10000 });
-    } catch {
-      // Try alternative selector
-      await this.page.locator(`div[role="menuitem"]:has-text("${location}")`).first().click({ timeout: 10000 });
-    }
+    await locationOption.click();
   }
 
   /**
@@ -289,17 +284,12 @@ export class TraineeSearchPage extends BasePage {
     // Open English level dropdown first
     await this.openEnglishLevelDropdown();
     
-    // Wait for dropdown to be visible - increased timeout
-    await this.page.waitForTimeout(2000); // Give dropdown more time to open
+    // Wait for dropdown to be visible
+    await this.page.waitForTimeout(1000); // Give dropdown time to open
     
-    // Click on the specific English level option - with timeout
+    // Click on the specific English level option
     const levelOption = this.page.locator(`div[role="menuitem"][data-orientation="vertical"]:has-text("${level}")`).first();
-    try {
-      await levelOption.click({ timeout: 10000 });
-    } catch {
-      // Try alternative selector
-      await this.page.locator(`div[role="menuitem"]:has-text("${level}")`).first().click({ timeout: 10000 });
-    }
+    await levelOption.click();
   }
 
   /**
