@@ -14,13 +14,13 @@ dotenv.config({ path: path.resolve(__dirname, '.env') });
 export default defineConfig({
   testDir: './tests/web',
   /* Run tests in files in parallel */
-  fullyParallel: true,
+  fullyParallel: false,  // ⭐ Changed=false para controlar workers porProject
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
   /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+  workers: undefined,  // ⭐ undefined para permitir workers por project
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [
     ['html', { open: process.env.CI ? 'never' : 'on-failure' }],
@@ -61,10 +61,24 @@ export default defineConfig({
   /* Configure projects for major browsers */
   projects: [
     {
-      name: 'chromium',
+      name: 'trainee-search-filters',
+      testMatch: 'trainee-search.spec.ts',
+      workers: 1,  // ⭐ Sequential para evitar interferencia dropdown
       use: { 
         ...devices['Desktop Chrome'],
-        channel: 'chrome',  // Use Chrome instead of Chromium
+        channel: 'chrome',
+        contextOptions: {
+          permissions: ['clipboard-read', 'clipboard-write'],
+        },
+      },
+    },
+    {
+      name: 'login-authentication',
+      testMatch: 'login.spec.ts',
+      workers: 4,  // ⭐ Parallel rápido para login
+      use: { 
+        ...devices['Desktop Chrome'],
+        channel: 'chrome',
         contextOptions: {
           permissions: ['clipboard-read', 'clipboard-write'],
         },
