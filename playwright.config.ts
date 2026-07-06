@@ -73,6 +73,18 @@ export default defineConfig({
       },
     },
     {
+      name: 'trainee-profile-sheet',
+      testMatch: 'trainee-profile-sheet.spec.ts',
+      workers: 1,  // ⭐ Sequential - sheet interaction requiere estado consistente
+      use: { 
+        ...devices['Desktop Chrome'],
+        channel: 'chrome',
+        contextOptions: {
+          permissions: ['clipboard-read', 'clipboard-write'],
+        },
+      },
+    },
+    {
       name: 'login-authentication',
       testMatch: 'login.spec.ts',
       workers: 4,  // ⭐ Parallel rápido para login
