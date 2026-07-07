@@ -108,6 +108,18 @@ export default defineConfig({
         },
       },
     },
+    {
+      name: 'access-control',
+      testMatch: 'access-control.spec.ts',
+      workers: 4,  // ⭐ Parallel - cada test navega a una ruta diferente, independientes
+      use: { 
+        ...devices['Desktop Chrome'],
+        channel: 'chrome',
+        contextOptions: {
+          permissions: ['clipboard-read', 'clipboard-write'],
+        },
+      },
+    },
   ],
 
   /* Run your local dev server before starting the tests */
