@@ -96,6 +96,18 @@ export default defineConfig({
         },
       },
     },
+    {
+      name: 'not-found-404',
+      testMatch: 'not-found.spec.ts',
+      workers: 4,  // ⭐ Parallel - tests son independientes y rápidos
+      use: { 
+        ...devices['Desktop Chrome'],
+        channel: 'chrome',
+        contextOptions: {
+          permissions: ['clipboard-read', 'clipboard-write'],
+        },
+      },
+    },
   ],
 
   /* Run your local dev server before starting the tests */

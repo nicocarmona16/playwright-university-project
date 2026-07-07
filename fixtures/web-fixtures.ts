@@ -3,6 +3,7 @@ import { LoginPage } from '../pages/LoginPage';
 import { HomePage } from '../pages/HomePage';
 import { TraineeSearchPage } from '../pages/TraineeSearchPage';
 import { TraineeProfileSheetPage } from '../pages/TraineeProfileSheetPage';
+import { NotFoundPage } from '../pages/NotFoundPage';
 
 /**
  * Custom test fixtures with page objects for web testing
@@ -12,6 +13,7 @@ export const test = base.extend<{
   homePage: HomePage;
   traineeSearchPage: TraineeSearchPage;
   traineeProfileSheetPage: TraineeProfileSheetPage;
+  notFoundPage: NotFoundPage;
 }>({
   loginPage: async ({ page }, use) => {
     const loginPage = new LoginPage(page);
@@ -28,6 +30,10 @@ export const test = base.extend<{
   traineeProfileSheetPage: async ({ page }, use) => {
     const traineeProfileSheetPage = new TraineeProfileSheetPage(page);
     await use(traineeProfileSheetPage);
+  },
+  notFoundPage: async ({ page }, use) => {
+    const notFoundPage = new NotFoundPage(page);
+    await use(notFoundPage);
   },
 });
 
