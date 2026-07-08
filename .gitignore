@@ -1,4 +1,3 @@
-
 # Playwright
 node_modules/
 /test-results/
@@ -8,4 +7,9 @@ node_modules/
 /playwright/.auth/
 .playwright-mcp
 
+# Allure
+/allure-results/
+/allure-report/
+
+# Environment
 .env

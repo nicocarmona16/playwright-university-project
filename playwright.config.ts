@@ -26,6 +26,7 @@ export default defineConfig({
     ['html', { open: process.env.CI ? 'never' : 'on-failure' }],
     ['json', { outputFile: 'test-results/results.json' }],
     ['junit', { outputFile: 'test-results/results.xml' }],
+    ['allure-playwright', { outputFolder: 'allure-results' }],
     ['line'],
   ],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */

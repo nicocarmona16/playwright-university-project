@@ -22,6 +22,7 @@ test.describe('Login Scenarios', () => {
   });
 
   test('ESCENARIO 1: Successful Login', async ({ loginPage, homePage, page }) => {
+
     TestUtils.log('Starting successful login test');
     
     // Navigate to login page
@@ -48,6 +49,7 @@ test.describe('Login Scenarios', () => {
   });
 
   test('ESCENARIO 2: Failed Login (Invalid Credentials)', async ({ loginPage, page }) => {
+
     TestUtils.log('Starting failed login test');
     
     // Navigate to login page
@@ -84,17 +86,12 @@ test.describe('Login Scenarios', () => {
         expect(errorMessage).toMatch(/Login Failed|Invalid credentials. Please check your email and password./);
       } else {
         TestUtils.log('No error message found, but still on login page');
-        // Accept that login failed (no redirection) since we're still on login page
         expect(currentUrl).toContain('login');
       }
     } else if (currentUrl === `${BASE_URL}/` || currentUrl === BASE_URL) {
-      // Redirected to home page - this might indicate the login doesn't have proper validation
       TestUtils.log('Login redirected to home page - may indicate missing validation');
-      // In this case, we should consider the test passed as we're testing invalid credentials behavior
-      // but we log that the validation may not be properly implemented
       expect(currentUrl).toBe(`${BASE_URL}/`);
     } else {
-      // Unexpected URL
       TestUtils.log(`Unexpected URL after login attempt: ${currentUrl}`);
       throw new Error(`Unexpected URL: ${currentUrl}`);
     }
