@@ -85,6 +85,18 @@ export default defineConfig({
       },
     },
     {
+      name: 'trainee-profile-edit',
+      testMatch: 'trainee-profile-edit.spec.ts',
+      workers: 1,  // ⭐ Sequential - requiere login + edición con estado compartido
+      use: { 
+        ...devices['Desktop Chrome'],
+        channel: 'chrome',
+        contextOptions: {
+          permissions: ['clipboard-read', 'clipboard-write'],
+        },
+      },
+    },
+    {
       name: 'login-authentication',
       testMatch: 'login.spec.ts',
       workers: 4,  // ⭐ Parallel rápido para login
